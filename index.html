@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        #game-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            border: 3px solid #4CAF50;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+            overflow: hidden;
+        }
+        
+        #game-board {
+            width: 100%;
+            height: 100%;
+            background-color: #1E1E1E;
+            position: relative;
+        }
+        
+        .snake-part {
+            position: absolute;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.8);
+            z-index: 2;
+        }
+        
+        .snake-head {
+            background-color: #8BC34A;
+            z-index: 3;
+        }
+        
+        .food {
+            position: absolute;
+            background-color: #FF5722;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(255, 87, 34, 0.8);
+            z-index: 1;
+        }
+        
+        #score-container {
+            display: flex;
+            justify-content: space-between;
+            width: 500px;
+            margin-top: 20px;
+        }
+        
+        .score-box {
+            background-color: #333333;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .score-label {
+            font-size: 0.9rem;
+            color: #BBBBBB;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            display: none;
+        }
+        
+        #game-over h2 {
+            color: #FF5722;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        #restart-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        #restart-btn:hover {
+            background-color: #3e8e41;
+            transform: scale(1.05);
+        }
+        
+        #controls {
+            margin-top: 20px;
+            text-align: center;
+            color: #BBBBBB;
+            font-size: 0.9rem;
+        }
+        
+        kbd {
+            background-color: #333;
+            border-radius: 3px;
+            border: 1px solid #666;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            color: #fff;
+            display: inline-block;
+            font-size: 0.9rem;
+            font-family: monospace;
+            line-height: 1;
+            padding: 2px 5px;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snake Game</h1>
+    
+    <div id="game-container">
+        <div id="game-board"></div>
+        <div id="game-over">
+            <h2>Game Over!</h2>
+            <p>Your final score: <span id="final-score">0</span></p>
+            <button id="restart-btn">Play Again</button>
+        </div>
+    </div>
+    
+    <div id="score-container">
+        <div class="score-box">
+            <div class="score-label">SCORE</div>
+            <div id="score" class="score-value">0</div>
+        </div>
+        <div class="score-box">
+            <div class="score-label">HIGH SCORE</div>
+            <div id="high-score" class="score-value">0</div>
+        </div>
+        <div class="score-box">
+            <div class="score-label">SPEED</div>
+            <div id="speed" class="score-value">1</div>
+        </div>
+    </div>
+    
+    <div id="controls">
+        Use <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd> <kbd>S</kbd> <kbd>A</kbd> <kbd>D</kbd> to control the snake
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
