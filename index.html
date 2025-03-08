@@ -149,6 +149,178 @@
             padding: 2px 5px;
             margin: 0 2px;
         }
+        
+        /* Settings Screen Styles */
+        #settings-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            display: none;
+        }
+        
+        #settings-screen h2 {
+            color: #4CAF50;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 80%;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #333333;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .settings-option label {
+            font-size: 1.1rem;
+            color: #FFFFFF;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px #4CAF50;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .number-input {
+            width: 60px;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background-color: #444;
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        #settings-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        
+        .settings-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .settings-btn:hover {
+            background-color: #3e8e41;
+            transform: scale(1.05);
+        }
+        
+        #cancel-btn {
+            background-color: #F44336;
+        }
+        
+        #cancel-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        /* Countdown Overlay */
+        #countdown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9;
+            display: none;
+        }
+        
+        #countdown {
+            font-size: 8rem;
+            color: #4CAF50;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+        }
+        
+        /* Settings button */
+        #settings-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            color: #BBBBBB;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 5;
+            transition: all 0.3s;
+        }
+        
+        #settings-btn:hover {
+            color: #4CAF50;
+            transform: rotate(30deg);
+        }
     </style>
 </head>
 <body>
@@ -156,10 +328,38 @@
     
     <div id="game-container">
         <div id="game-board"></div>
+        <button id="settings-btn">⚙️</button>
+        
         <div id="game-over">
             <h2>Game Over!</h2>
             <p>Your final score: <span id="final-score">0</span></p>
             <button id="restart-btn">Play Again</button>
+        </div>
+        
+        <div id="settings-screen">
+            <h2>Settings</h2>
+            
+            <div class="settings-option">
+                <label for="wall-pass">Pass Through Walls</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="wall-pass">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="settings-option">
+                <label for="countdown-time">Countdown Time (seconds)</label>
+                <input type="number" id="countdown-time" class="number-input" min="1" max="10" value="3">
+            </div>
+            
+            <div id="settings-buttons">
+                <button id="save-btn" class="settings-btn">Save</button>
+                <button id="cancel-btn" class="settings-btn">Cancel</button>
+            </div>
+        </div>
+        
+        <div id="countdown-overlay">
+            <div id="countdown">3</div>
         </div>
     </div>
     
@@ -179,7 +379,7 @@
     </div>
     
     <div id="controls">
-        Use <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd> <kbd>S</kbd> <kbd>A</kbd> <kbd>D</kbd> to control the snake
+        Use <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd> <kbd>S</kbd> <kbd>A</kbd> <kbd>D</kbd> to control the snake | Press <kbd>ESC</kbd> for settings
     </div>
     
     <script src="game.js"></script>

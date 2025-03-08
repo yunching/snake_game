@@ -17,6 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameOverScreen = document.getElementById('game-over');
     const finalScoreElement = document.getElementById('final-score');
     const restartButton = document.getElementById('restart-btn');
+    
+    // Settings elements
+    const settingsButton = document.getElementById('settings-btn');
+    const settingsScreen = document.getElementById('settings-screen');
+    const wallPassToggle = document.getElementById('wall-pass');
+    const countdownTimeInput = document.getElementById('countdown-time');
+    const saveSettingsButton = document.getElementById('save-btn');
+    const cancelSettingsButton = document.getElementById('cancel-btn');
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    const countdownElement = document.getElementById('countdown');
 
     // Game state
     let snake = [];
@@ -29,6 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let speedLevel = 1;
     let gameInterval;
     let gameRunning = false;
+    let gamePaused = false;
+    
+    // Settings state
+    let wallPassEnabled = false;
+    let countdownTime = 3;
+    let originalSettings = {
+        wallPassEnabled: false,
+        countdownTime: 3
+    };
 
     // Initialize the game
     function initGame() {
@@ -65,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameInterval) clearInterval(gameInterval);
         gameInterval = setInterval(gameLoop, gameSpeed);
         gameRunning = true;
+        gamePaused = false;
     }
 
     // Create a snake part
@@ -109,6 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Main game loop
     function gameLoop() {
+        if (gamePaused) return;
+        
         // Update direction
         direction = nextDirection;
         
@@ -130,14 +152,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
         
-        // Check for collisions
-        if (
-            head.x < 0 || 
-            head.x >= GRID_WIDTH || 
-            head.y < 0 || 
-            head.y >= GRID_HEIGHT ||
-            snake.some(part => part.x === head.x && part.y === head.y)
-        ) {
+        // Handle wall collision based on settings
+        if (wallPassEnabled) {
+            // Wrap around if wall pass is enabled
+            if (head.x < 0) head.x = GRID_WIDTH - 1;
+            if (head.x >= GRID_WIDTH) head.x = 0;
+            if (head.y < 0) head.y = GRID_HEIGHT - 1;
+            if (head.y >= GRID_HEIGHT) head.y = 0;
+        } else {
+            // Check for wall collisions if wall pass is disabled
+            if (
+                head.x < 0 || 
+                head.x >= GRID_WIDTH || 
+                head.y < 0 || 
+                head.y >= GRID_HEIGHT
+            ) {
+                gameOver();
+                return;
+            }
+        }
+        
+        // Check for self collision
+        if (snake.some(part => part.x === head.x && part.y === head.y)) {
             gameOver();
             return;
         }
@@ -193,9 +229,93 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle game over
     function gameOver() {
         gameRunning = false;
+        gamePaused = false;
         clearInterval(gameInterval);
         finalScoreElement.textContent = score;
         gameOverScreen.style.display = 'flex';
+    }
+    
+    // Pause the game
+    function pauseGame() {
+        if (!gameRunning || gamePaused) return;
+        gamePaused = true;
+    }
+    
+    // Resume the game with countdown
+    function resumeGame() {
+        if (!gameRunning || !gamePaused) return;
+        
+        // Show countdown overlay
+        countdownOverlay.style.display = 'flex';
+        countdownElement.textContent = countdownTime;
+        
+        let timeLeft = countdownTime;
+        
+        // Start countdown
+        const countdownInterval = setInterval(() => {
+            timeLeft--;
+            
+            if (timeLeft <= 0) {
+                // End countdown
+                clearInterval(countdownInterval);
+                countdownOverlay.style.display = 'none';
+                gamePaused = false;
+            } else {
+                // Update countdown display
+                countdownElement.textContent = timeLeft;
+            }
+        }, 1000);
+    }
+    
+    // Open settings screen
+    function openSettings() {
+        if (!gameRunning) return;
+        
+        // Pause the game
+        pauseGame();
+        
+        // Store original settings in case user cancels
+        originalSettings = {
+            wallPassEnabled: wallPassEnabled,
+            countdownTime: countdownTime
+        };
+        
+        // Update settings UI to match current settings
+        wallPassToggle.checked = wallPassEnabled;
+        countdownTimeInput.value = countdownTime;
+        
+        // Show settings screen
+        settingsScreen.style.display = 'flex';
+    }
+    
+    // Close settings screen and apply changes
+    function saveSettings() {
+        // Update settings
+        wallPassEnabled = wallPassToggle.checked;
+        countdownTime = parseInt(countdownTimeInput.value) || 3;
+        
+        // Validate countdown time
+        if (countdownTime < 1) countdownTime = 1;
+        if (countdownTime > 10) countdownTime = 10;
+        
+        // Close settings screen
+        settingsScreen.style.display = 'none';
+        
+        // Resume game with countdown
+        resumeGame();
+    }
+    
+    // Close settings screen without applying changes
+    function cancelSettings() {
+        // Restore original settings
+        wallPassEnabled = originalSettings.wallPassEnabled;
+        countdownTime = originalSettings.countdownTime;
+        
+        // Close settings screen
+        settingsScreen.style.display = 'none';
+        
+        // Resume game with countdown
+        resumeGame();
     }
 
     // Handle keyboard input
@@ -223,12 +343,22 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'D':
                 if (direction !== 'left') nextDirection = 'right';
                 break;
-            case ' ':
-                // Pause/resume game (optional feature)
+            case 'Escape':
+                // Toggle settings screen
+                if (settingsScreen.style.display === 'flex') {
+                    cancelSettings();
+                } else {
+                    openSettings();
+                }
                 break;
         }
     });
 
+    // Event listeners for settings
+    settingsButton.addEventListener('click', openSettings);
+    saveSettingsButton.addEventListener('click', saveSettings);
+    cancelSettingsButton.addEventListener('click', cancelSettings);
+    
     // Handle restart button
     restartButton.addEventListener('click', initGame);
 
